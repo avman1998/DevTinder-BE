@@ -26,6 +26,85 @@ app.post("/signup", async (req, res) => {
   }
 });
 
+// Get user by email - /user
+app.get("/user", async (req, res) => {
+  try {
+    const userEmail = req.body.emailId;
+    const user = await User.findOne({ emailId: userEmail });
+    if (user || Object.keys(user).length > 0) {
+      res.status(200).send(user);
+    }
+    // const users = await User.find({ emailId: userEmail });
+    // if (users.length === 0) {
+    //   res.status(404).send("User not found");
+    // } else res.status(200).send(users);
+  } catch (err) {
+    res.status(404).send("Something went wrong!!");
+  }
+});
+
+//Feed API - get /feed
+app.get("/feed", async (req, res) => {
+  try {
+    const users = await User.find({});
+    if (users.length === 0) res.status(404).send("Users are not found.");
+    else res.status(200).send(users);
+  } catch (err) {
+    res.status(400).send("Something went wrong!!");
+  }
+});
+
+// Get user by id - get /id
+app.get("/user/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await User.findById(id);
+    if (user || Object.keys(user).length > 0) {
+      res.status(200).send(user);
+    } else {
+      res.status(404).send("User not found");
+    }
+  } catch (error) {
+    res.status(400).send("Something went wrong!!");
+  }
+});
+
+// Delete user by Id
+app.delete("/user/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await User.findByIdAndDelete(id);
+    if (user || Object.keys(user).length > 0) {
+      res.status(200).send("User deleted successfully.");
+    } else {
+      res.status(404).send("User not found");
+    }
+  } catch (error) {
+    res.status(400).send("Something went wrong!!");
+  }
+});
+
+//Update user by ID
+app.patch("/user/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const data = req.body;
+    console.log("id", id, data);
+    // const user = await User.findByIdAndUpdate({ _id: id }, data, {
+    //   returnDocument: "after",
+    // });
+    const user = await User.findByIdAndUpdate(id, data);
+    console.log("user", user);
+    if (user || Object.keys(user).length > 0) {
+      res.status(200).send("User updated successfully");
+    } else {
+      res.status(404).send("User not found");
+    }
+  } catch (error) {
+    res.status(400).send("Something went wrong!!");
+  }
+});
+
 const PORT = 8888;
 
 app.listen(PORT, () => {
