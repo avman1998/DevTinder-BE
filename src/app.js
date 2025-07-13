@@ -12,18 +12,12 @@ connectDB()
   });
 
 const app = express();
+app.use(express.json());
 
 //adding a user to  database.
 app.post("/signup", async (req, res) => {
-  const myUser = {
-    firstName: "Aman",
-    lastName: "Verma",
-    age: 25,
-    password: "12345",
-    email: "avman1998@gmail.com",
-    gender: "Male",
-  };
-
+  const body = req.body;
+  const user = new User(body);
   try {
     await user.save();
     res.send("User Added successfully!");
