@@ -14,15 +14,25 @@ connectDB()
 const app = express();
 app.use(express.json());
 
+function checkSkillsLen(skills) {
+  return skills?.length > 3 ? false : true;
+}
+
 //adding a user to  database.
 app.post("/signup", async (req, res) => {
   const body = req.body;
   const user = new User(body);
+  console.log("user", user);
   try {
+    if (!checkSkillsLen(user?.skills)) {
+      throw new Error("Number of skills should not be more than 3");
+    }
+
     await user.save();
     res.send("User Added successfully!");
   } catch (err) {
-    res.status(400).send("Error after saving the user: ", err.message);
+    console.log("Error", err);
+    res.status(400).send("Error after saving the user: " + err.message);
   }
 });
 
@@ -39,7 +49,7 @@ app.get("/user", async (req, res) => {
     //   res.status(404).send("User not found");
     // } else res.status(200).send(users);
   } catch (err) {
-    res.status(404).send("Something went wrong!!");
+    res.status(404).send("Something went wrong!! " + err);
   }
 });
 
@@ -50,7 +60,7 @@ app.get("/feed", async (req, res) => {
     if (users.length === 0) res.status(404).send("Users are not found.");
     else res.status(200).send(users);
   } catch (err) {
-    res.status(400).send("Something went wrong!!");
+    res.status(400).send("Something went wrong!!" + err);
   }
 });
 
@@ -65,7 +75,7 @@ app.get("/user/:id", async (req, res) => {
       res.status(404).send("User not found");
     }
   } catch (error) {
-    res.status(400).send("Something went wrong!!");
+    res.status(400).send("Something went wrong!!" + err);
   }
 });
 
@@ -80,7 +90,7 @@ app.delete("/user/:id", async (req, res) => {
       res.status(404).send("User not found");
     }
   } catch (error) {
-    res.status(400).send("Something went wrong!!");
+    res.status(400).send("Something went wrong!!" + err);
   }
 });
 
@@ -89,19 +99,40 @@ app.patch("/user/:id", async (req, res) => {
   try {
     const id = req.params.id;
     const data = req.body;
-    console.log("id", id, data);
     // const user = await User.findByIdAndUpdate({ _id: id }, data, {
     //   returnDocument: "after",
     // });
-    const user = await User.findByIdAndUpdate(id, data);
-    console.log("user", user);
+    const user = await User.findByIdAndUpdate({ _id: id }, data, {
+      runValidators: true,
+    });
+    const ALLOWED_UPDATES = [
+      "age",
+      "gender",
+      "photoURL",
+      "firstName",
+      "lastName",
+      "about",
+      "skills",
+    ];
+    const isUpdateAllowed = Object.keys(data).every((k) =>
+      ALLOWED_UPDATES.includes(k)
+    );
+    //Checking if update is allowed or not
+    if (!isUpdateAllowed) {
+      throw new Error("Update is not allowed.");
+    }
+    //Skills should not be more than 3
+    if (!checkSkillsLen(data?.skills)) {
+      throw new Error("Number of skills should not be more than 3");
+    }
+
     if (user || Object.keys(user).length > 0) {
       res.status(200).send("User updated successfully");
     } else {
       res.status(404).send("User not found");
     }
   } catch (error) {
-    res.status(400).send("Something went wrong!!");
+    res.status(400).send("Something went wrong!!" + error);
   }
 });
 
