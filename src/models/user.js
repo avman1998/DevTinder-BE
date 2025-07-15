@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const userSchema = new mongoose.Schema(
   {
@@ -33,11 +34,21 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowerCase: true,
       trim: true,
+      validate(email) {
+        if (!validator.isEmail(email)) {
+          throw new Error("email is not valid");
+        }
+      },
     },
     password: {
       type: String,
       required: true,
       minLength: 6,
+      validate(password) {
+        if (!validator.isStrongPassword(password)) {
+          throw new Error("Enter a strong password");
+        }
+      },
     },
     age: {
       type: Number,
@@ -45,17 +56,16 @@ const userSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      validate(value) {
-        const genderOptions = ["male", "female", "others"];
-        if (!genderOptions.includes(value)) {
-          throw new Error("Gender data is not valid");
-        }
-      },
     },
     photoURL: {
       type: String,
       default:
         "https://www.parkcityflyfishing.com/wp-content/uploads/Dummy-Profile-Picture.jpg",
+      validate(URL) {
+        if (!validator.isURL(URL)) {
+          throw new Error("Photo URL is not valid");
+        }
+      },
     },
     about: {
       type: String,

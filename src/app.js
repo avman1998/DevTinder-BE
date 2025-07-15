@@ -1,5 +1,7 @@
 const express = require("express");
+const bcrypt = require("bcrypt");
 const connectDB = require("./config/database");
+const { validateSignUpData } = require("./utils/validation");
 const User = require("./models/user");
 
 // first, connect to DB, then allow to read requests.
@@ -20,10 +22,22 @@ function checkSkillsLen(skills) {
 
 //adding a user to  database.
 app.post("/signup", async (req, res) => {
-  const body = req.body;
-  const user = new User(body);
-  console.log("user", user);
   try {
+    //Validation of data
+    validateSignUpData(req);
+
+    const { firstName, lastName, emailId, password } = req.body;
+
+    //Encrypt the password
+    const passwordHash = await bcrypt.hash(password, 10);
+    console.log(passwordHash);
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: passwordHash,
+    });
+
     if (!checkSkillsLen(user?.skills)) {
       throw new Error("Number of skills should not be more than 3");
     }
@@ -31,8 +45,23 @@ app.post("/signup", async (req, res) => {
     await user.save();
     res.send("User Added successfully!");
   } catch (err) {
-    console.log("Error", err);
-    res.status(400).send("Error after saving the user: " + err.message);
+    res.status(400).send("ERROR: " + err.message);
+  }
+});
+
+//Login api - /login
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) throw new Error("Email or password is incorrect.");
+
+    const isPasswordValid = await bcrypt.compare(password, user?.password);
+    if (isPasswordValid) {
+      res.status(200).send("Login successfull!");
+    } else throw new Error("Email or password is incorrect.");
+  } catch (error) {
+    res.status(400).send("ERROR: " + error);
   }
 });
 
