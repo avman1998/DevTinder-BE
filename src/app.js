@@ -1,8 +1,12 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 const connectDB = require("./config/database");
-const { validateSignUpData } = require("./utils/validation");
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
 const User = require("./models/user");
+const { userAuth } = require("./middlewares/auth");
 
 // first, connect to DB, then allow to read requests.
 connectDB()
@@ -15,55 +19,16 @@ connectDB()
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 function checkSkillsLen(skills) {
   return skills?.length > 3 ? false : true;
 }
 
-//adding a user to  database.
-app.post("/signup", async (req, res) => {
-  try {
-    //Validation of data
-    validateSignUpData(req);
+app.use("/", authRouter);
 
-    const { firstName, lastName, emailId, password } = req.body;
-
-    //Encrypt the password
-    const passwordHash = await bcrypt.hash(password, 10);
-    console.log(passwordHash);
-    const user = new User({
-      firstName,
-      lastName,
-      emailId,
-      password: passwordHash,
-    });
-
-    if (!checkSkillsLen(user?.skills)) {
-      throw new Error("Number of skills should not be more than 3");
-    }
-
-    await user.save();
-    res.send("User Added successfully!");
-  } catch (err) {
-    res.status(400).send("ERROR: " + err.message);
-  }
-});
-
-//Login api - /login
-app.post("/login", async (req, res) => {
-  try {
-    const { emailId, password } = req.body;
-    const user = await User.findOne({ emailId: emailId });
-    if (!user) throw new Error("Email or password is incorrect.");
-
-    const isPasswordValid = await bcrypt.compare(password, user?.password);
-    if (isPasswordValid) {
-      res.status(200).send("Login successfull!");
-    } else throw new Error("Email or password is incorrect.");
-  } catch (error) {
-    res.status(400).send("ERROR: " + error);
-  }
-});
+app.use("/", profileRouter);
+//Profile
 
 // Get user by email - /user
 app.get("/user", async (req, res) => {
@@ -83,7 +48,7 @@ app.get("/user", async (req, res) => {
 });
 
 //Feed API - get /feed
-app.get("/feed", async (req, res) => {
+app.get("/feed", userAuth, async (req, res) => {
   try {
     const users = await User.find({});
     if (users.length === 0) res.status(404).send("Users are not found.");
