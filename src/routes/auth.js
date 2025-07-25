@@ -42,11 +42,20 @@ authRouter.post("/login", async (req, res) => {
       res.cookie("token", token, {
         expires: new Date(Date.now() + 8 * 3600000),
       });
-      res.status(200).send("Login successfull!");
+      res.status(200).send("Login successful!!");
     } else throw new Error("Email or password is incorrect.");
   } catch (error) {
     res.status(400).send("ERROR: " + error);
   }
+});
+
+//Logout api-
+authRouter.post("/logout", (req, res) => {
+  res
+    .cookie("token", null, {
+      expires: new Date(Date.now()),
+    })
+    .send("Logout successful!!");
 });
 
 module.exports = authRouter;

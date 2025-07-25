@@ -10,4 +10,24 @@ function validateSignUpData(req) {
   }
 }
 
-module.exports = { validateSignUpData };
+function validateProfileEditData(req) {
+  console.log("req", req.body);
+  const allowedEditFields = [
+    "firstName",
+    "lastName",
+    "emailId",
+    "age",
+    "gender",
+    "photoURL",
+    "about",
+    "skills",
+  ];
+
+  const isAllowedEdit = Object.keys(req.body).every((field) =>
+    allowedEditFields.includes(field)
+  );
+
+  return isAllowedEdit;
+}
+
+module.exports = { validateSignUpData, validateProfileEditData };

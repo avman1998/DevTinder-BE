@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const connectDB = require("./config/database");
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
+const requestRouter = require("./routes/request");
 const User = require("./models/user");
 const { userAuth } = require("./middlewares/auth");
 
@@ -28,6 +29,8 @@ function checkSkillsLen(skills) {
 app.use("/", authRouter);
 
 app.use("/", profileRouter);
+
+app.use("/", requestRouter);
 //Profile
 
 // Get user by email - /user
