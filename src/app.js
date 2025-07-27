@@ -6,6 +6,7 @@ const connectDB = require("./config/database");
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
+const userRouter = require("./routes/user");
 const User = require("./models/user");
 const { userAuth } = require("./middlewares/auth");
 
@@ -31,6 +32,8 @@ app.use("/", authRouter);
 app.use("/", profileRouter);
 
 app.use("/", requestRouter);
+
+app.use("/", userRouter);
 //Profile
 
 // Get user by email - /user
