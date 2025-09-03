@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const cors = require("cors");
 const connectDB = require("./config/database");
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
@@ -20,6 +21,7 @@ connectDB()
   });
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
