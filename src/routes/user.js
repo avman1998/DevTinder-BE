@@ -4,7 +4,7 @@ const { userAuth } = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 
-const USER_SAFE_DATA = "firstName lastName skills age gender about";
+const USER_SAFE_DATA = "firstName lastName skills age gender about photoURL";
 
 userRouter.get("/user/request/received", userAuth, async (req, res) => {
   try {
@@ -84,6 +84,8 @@ userRouter.get("/feed", userAuth, async (req, res) => {
       .select(USER_SAFE_DATA)
       .skip(skip)
       .limit(limit);
+
+    console.log("feed users", feedUsers);
 
     res.status(200).json({
       data: feedUsers,

@@ -34,7 +34,7 @@ authRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
     const user = await User.findOne({ emailId: emailId });
-    if (!user) throw new Error("Email or password is incorrect.");
+    if (!user) res.status(400).send("ERROR: Email or password is incorrect.");
 
     const isPasswordValid = await user.validatePassword(password);
     if (isPasswordValid) {
@@ -46,7 +46,8 @@ authRouter.post("/login", async (req, res) => {
         message: "SUCCESS",
         data: user,
       });
-    } else throw new Error("Email or password is incorrect.");
+    }
+    res.status(400).send("ERROR: Email or password is incorrect.");
   } catch (error) {
     res.status(400).send("ERROR: " + error);
   }
@@ -58,6 +59,7 @@ authRouter.post("/logout", (req, res) => {
     .cookie("token", null, {
       expires: new Date(Date.now()),
     })
+    .status(200)
     .send("Logout successful!!");
 });
 

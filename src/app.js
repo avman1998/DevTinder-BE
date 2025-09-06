@@ -60,15 +60,16 @@ app.get("/user", async (req, res) => {
 });
 
 //Feed API - get /feed
-app.get("/feed", userAuth, async (req, res) => {
-  try {
-    const users = await User.find({});
-    if (users.length === 0) res.status(404).send("Users are not found.");
-    else res.status(200).send(users);
-  } catch (err) {
-    res.status(400).send("Something went wrong!!" + err);
-  }
-});
+// app.get("/feed", userAuth, async (req, res) => {
+//   try {
+//     const users = await User.find({});
+//     console.log("users feed", users);
+//     if (users.length === 0) res.status(404).send("Users are not found.");
+//     else res.status(200).send(users);
+//   } catch (err) {
+//     res.status(400).send("Something went wrong!!" + err);
+//   }
+// });
 
 // Get user by id - get /id
 app.get("/user/:id", async (req, res) => {
