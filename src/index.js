@@ -22,7 +22,7 @@ connectDB()
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://devtinder-ui-aman.netlify.app",
     credentials: true,
   })
 );

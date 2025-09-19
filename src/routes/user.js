@@ -85,8 +85,6 @@ userRouter.get("/feed", userAuth, async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    console.log("feed users", feedUsers);
-
     res.status(200).json({
       data: feedUsers,
     });
